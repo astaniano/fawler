@@ -1,0 +1,5 @@
+Refactoring changes the programs in small steps. If you make a mistake, it is easy to
+find the bug.
+
+when writing tests it's good to check if the return type is not converted from double to int=))
+
