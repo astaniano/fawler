@@ -1,20 +1,21 @@
 function statement(invoice, plays) {
 	let totalAmount = 0;
 	let volumeCredits = 0;
-
 	let result = `Statement for ${invoice.customer}\n`;
 
 	for (let perf of invoice.performances) {
-		volumeCredits += volumeCreditsFor(perf);
-
 		// Вывод строки счета
 		result += ` ${playFor(perf).name}: `;
-		result += ` ${usd(amountFor(perf) / 100)} `;
-		result += ` (${perf.audience} seats)\n`;
+		result += ` ${usd(amountFor(perf))} (${perf.audience} seats)\n`;
 		totalAmount += amountFor(perf);
 	}
-	result += `Amount owed is ${usd(totalAmount / 100)}\n`;
-	result += `You earned ${volumecredits} credits\n`;
+
+	for (let perf of invoice.performances) {
+		volumeCredits += volumeCreditsFor(perf);
+	}
+
+	result += `Amount owed is ${usd(totalAmount)}\n`;
+	result += `You earned ${volumeCredits} credits\n`;
 	return result;
 }
 
@@ -22,7 +23,7 @@ function usd(aNumber) {
 	return new Inti.NumberFormat("en-US", {
 		style: "currency”, currency: ’’USD",
 		minimumFractionDigits: 2,
-	}).format(aNumber);
+	}).format(aNumber / 100);
 }
 
 function volumeCreditsFor(perf) {
