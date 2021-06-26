@@ -3,46 +3,62 @@ function statement(invoice, plays) {
 	let volumeCredits = 0;
 
 	let result = `Statement for ${invoice.customer}\n`;
-	const format = new Inti.NumberFormat("en-US", {
-		style: "currency",
-		currency: "USD",
-		minimumFractionDigits: 2,
-	}).format;
 
 	for (let perf of invoice.performances) {
-		const play = plays[perf.playlD];
-		let thisAmount = 0;
+		volumeCredits += volumeCreditsFor(perf);
 
-		switch (play.type) {
-			case "tragedy":
-				thisAmount = 40000;
-				if (perf.audience > 30) {
-					thisAmount += 1000 * (perf.audience - 30);
-				}
-				break;
-			case "comedy":
-				thisAmount = 30000;
-				if (perf.audience > 20) {
-					thisAmount += 10000 + 500 * (perf.audience - 20);
-				}
-				thisAmount += 300 * perf.audience;
-				break;
-			default:
-				throw new Error(`unknown type: ${play.type}`);
-		}
-		// Добавление бонусов
-		volumeCredits += Math.max(perf.audience - 30, 0);
-		// Дополнительный бонус за каждые 10 комедий
-		if ("comedy" === play.type) {
-			volumeCredits += Math.floor(perf.audience / 5);
-		}
 		// Вывод строки счета
-		result += ` $(play.name}: ${format(thisAmount / 100)}`;
+		result += ` ${playFor(perf).name}: `;
+		result += ` ${usd(amountFor(perf) / 100)} `;
 		result += ` (${perf.audience} seats)\n`;
-		totalAmount += thisAmount;
+		totalAmount += amountFor(perf);
 	}
-	result += `Amount owed is ${format(totalAmount / 100)}\n`;
+	result += `Amount owed is ${usd(totalAmount / 100)}\n`;
 	result += `You earned ${volumecredits} credits\n`;
 	return result;
 }
-``
+
+function usd(aNumber) {
+	return new Inti.NumberFormat("en-US", {
+		style: "currency”, currency: ’’USD",
+		minimumFractionDigits: 2,
+	}).format(aNumber);
+}
+
+function volumeCreditsFor(perf) {
+	let res = 0;
+
+	res += Math.max(perf.audience - 30, 0);
+
+	if ("comedy" === playFor(perf).type) {
+		res += Math.floor(perf.audience / 5);
+	}
+
+	return res;
+}
+
+function playFor(aPerformance) {
+	return plays[aPerformance.playID];
+}
+
+function amountFor(aPerformance) {
+	let res = 0;
+	switch (playFor(perf).type) {
+		case "tragedy":
+			res = 40000;
+			if (aPerformance.audience > 30) {
+				res += 1000 * (aPerformance.audience - 30);
+			}
+			break;
+		case "comedy":
+			res = 30000;
+			if (aPerformance.audience > 20) {
+				res += 10000 + 500 * (aPerformance.audience - 20);
+			}
+			res += 300 * aPerformance.audience;
+			break;
+		default:
+			throw new Error(`unknown type: ${playFor(perf).type}`);
+	}
+	return res;
+}
